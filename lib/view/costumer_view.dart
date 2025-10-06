@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:plastihogar_flutter/theme/appcolor.dart';
 import '../controller/costumer_controller.dart';
 import '../model/costumer_model.dart';
+import 'detallecostumer_view.dart';
+import '../theme/appcolor.dart';
 
 class CustomerView extends StatefulWidget {
   const CustomerView({Key? key}) : super(key: key);
@@ -32,14 +35,14 @@ class _CustomerViewState extends State<CustomerView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100], // 🎨 Fondo principal (puedes cambiar)
+      backgroundColor: AppColors.lavender, 
       appBar: AppBar(
         title: Text(
           _verActivos ? 'Clientes Activos' : 'Clientes Inactivos',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: const Color(0xFF192338), // 🎨 Color de AppBar
+        backgroundColor: AppColors.oxfordBlue, 
         elevation: 4,
         actions: [
           IconButton(
@@ -128,9 +131,14 @@ class _CustomerViewState extends State<CustomerView> {
   Widget _buildCustomerCard(Customer customer) {
     return GestureDetector(
       onTap: () {
-        // 👉 Aquí abriremos la vista de perfil/detalle
-        // Navigator.push(context, MaterialPageRoute(builder: (_) => CustomerDetailView(customer: customer)));
-      },
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => CustomerDetailView(customer: customer),
+    ),
+  );
+},
+
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         elevation: 3,
@@ -171,7 +179,7 @@ class _CustomerViewState extends State<CustomerView> {
                       'Teléfono: ${customer.telefono}',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[700], // 🎨 Color texto secundario
+                        color: AppColors.spaceCadet, // 🎨 Color texto secundario
                       ),
                     ),
                     Text(
