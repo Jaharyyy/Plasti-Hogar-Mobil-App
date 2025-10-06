@@ -3,7 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 
 class InicioScreen extends StatefulWidget {
-  const InicioScreen({super.key});
+
+  final dynamic authResponse;
+
+  const InicioScreen({super.key, required this.authResponse});
 
   @override
   State<InicioScreen> createState() => _InicioScreenState();

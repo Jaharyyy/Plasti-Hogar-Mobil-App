@@ -2,9 +2,49 @@ import 'dart:convert';
 import '../model/domain_model.dart';
 import 'package:http/http.dart' as http;
 import '../model/type_registry.dart';
+import 'package:flutter/foundation.dart';
 
 class ApiServices {
   final String baseUrl = "http://localhost:5059/api"; // Emulador Android
+
+  // Método POST genérico para enviar datos (ideal para Login)
+  Future<Map<String, dynamic>> post(
+    String endpoint, 
+    Map<String, dynamic> data,
+  ) async {
+    final url = Uri.parse('$baseUrl/$endpoint');
+    final body = jsonEncode(data);
+
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: body,
+      );
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        // Petición exitosa (200 OK, 201 Created)
+        if (response.body.isNotEmpty) {
+          return jsonDecode(response.body);
+        }
+        return {}; 
+      } else if (response.statusCode == 401 || response.statusCode == 403) {
+        // Error de credenciales o acceso
+        throw Exception('Credenciales Inválidas o Acceso Denegado.');
+      } else {
+        // Otro error del servidor (404, 500, etc.)
+        throw Exception('Error de servidor: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Error de red 
+      if (kDebugMode) {
+        print('Error de conexión en POST a $endpoint: $e');
+      }
+      throw Exception('Fallo la conexión con el servidor.');
+    }
+  }
 
   String? _bearerToken; // 🔑 Aquí guardamos el token
 
@@ -31,7 +71,7 @@ class ApiServices {
   }
 
   // === POST ===
-  Future<T> post<T extends DomainModel>({required T model}) async {
+  Future<T>POST<T extends DomainModel>({required T model}) async {
     final response = await http.post(
       Uri.parse('$baseUrl${model.getDomain()}'),
       headers: buildHeaders(),

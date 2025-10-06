@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'view/costumer_view.dart'; // 👈 importa tu vista principal
+import 'view/costumer_view.dart'; 
+import 'view/login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: const CustomerView(), // 👈 esta es la pantalla que se carga primero
+      home: const LoginScreen(), // 👈 esta es la pantalla que se carga primero
     );
   }
 }
