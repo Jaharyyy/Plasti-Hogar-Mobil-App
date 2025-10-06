@@ -2,7 +2,6 @@ import 'dart:convert';
 import '../model/domain_model.dart';
 import 'package:http/http.dart' as http;
 import '../model/type_registry.dart';
-import 'services_config.dart';
 
 class ApiServices {
   final String baseUrl = "http://localhost:5059/api"; // Emulador Android
@@ -25,7 +24,7 @@ class ApiServices {
 
     final response = await http.get(
       uri,
-      headers: _buildHeaders(),
+      headers: buildHeaders(),
     );
 
     return _handleResponse<T>(response, model.runtimeType.toString());
@@ -35,7 +34,7 @@ class ApiServices {
   Future<T> post<T extends DomainModel>({required T model}) async {
     final response = await http.post(
       Uri.parse('$baseUrl${model.getDomain()}'),
-      headers: _buildHeaders(),
+      headers: buildHeaders(),
       body: jsonEncode(model.toJson()),
     );
 
@@ -46,7 +45,7 @@ class ApiServices {
   Future<void> put({required DomainModel model}) async {
     final response = await http.put(
       Uri.parse('$baseUrl${model.getDomain()}'),
-      headers: _buildHeaders(),
+      headers: buildHeaders(),
       body: jsonEncode(model.toJson()),
     );
 
@@ -59,7 +58,7 @@ class ApiServices {
   Future<void> delete({required DomainModel model}) async {
     final response = await http.delete(
       Uri.parse('$baseUrl${model.getDomain()}'),
-      headers: _buildHeaders(),
+      headers: buildHeaders(),
       body: jsonEncode(model.toJson()),
     );
 
@@ -69,7 +68,7 @@ class ApiServices {
   }
 
   // Construye headers con Bearer si existe
-  Map<String, String> _buildHeaders() {
+  Map<String, String> buildHeaders() {
     final headers = {'Content-Type': 'application/json'};
     if (_bearerToken != null) {
       headers['Authorization'] = 'Bearer $_bearerToken';
@@ -121,7 +120,7 @@ class ApiServices {
 
     final response = await http.get(
       uri,
-      headers: _buildHeaders(),
+      headers: buildHeaders(),
     );
 
     final json = jsonDecode(response.body);

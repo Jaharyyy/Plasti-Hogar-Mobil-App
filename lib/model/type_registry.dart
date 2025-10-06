@@ -1,4 +1,4 @@
-import 'package:plastihogar_flutter/model/product_model.dart';
+
 import 'domain_model.dart';
 
 class TypeRegistry {
