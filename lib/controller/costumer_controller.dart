@@ -1,64 +1,74 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../model/costumer_model.dart';
 import '../services/api_services.dart';
+import 'package:flutter/foundation.dart';
 
 class CustomerController {
   final ApiServices _api = ApiServices();
-  static const String baseUrl = "http://localhost:5059/api/Customers/";
+  static const String _endpointBase = "Customers"; // 🔹 sin slash al final
 
-  // GET - Clientes Activos
+  // 📥 Clientes Activos
   Future<List<Customer>> getActiveCustomers() async {
-    final uri = Uri.parse('${baseUrl}obtenerClientesActivos');
-    final response = await http.get(uri, headers: _api.buildHeaders());
+    try {
+      final uri = Uri.parse('${_api.baseUrl}/$_endpointBase/obtenerClientesActivos'); // ✅ sin doble slash
+      final response = await _api.getRaw(uri);
 
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList.map((e) => Customer.fromJson(e)).toList();
-    } else {
-      throw Exception('Error al obtener clientes activos: ${response.statusCode}');
+      final List<dynamic> data = jsonDecode(response);
+      return data.map((e) => Customer.fromJson(e)).toList();
+    } catch (e) {
+      if (kDebugMode) print('❌ Error al obtener clientes activos: $e');
+      rethrow;
     }
   }
 
-  // GET - Clientes Inactivos
+  // 📥 Clientes Inactivos
   Future<List<Customer>> getInactiveCustomers() async {
-    final uri = Uri.parse('${baseUrl}obtenerClientesInactivos');
-    final response = await http.get(uri, headers: _api.buildHeaders());
+    try {
+      final uri = Uri.parse('${_api.baseUrl}/$_endpointBase/obtenerClientesInactivos'); // ✅ igual corregido
+      final response = await _api.getRaw(uri);
 
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList.map((e) => Customer.fromJson(e)).toList();
-    } else {
-      throw Exception('Error al obtener clientes inactivos: ${response.statusCode}');
+      final List<dynamic> data = jsonDecode(response);
+      return data.map((e) => Customer.fromJson(e)).toList();
+    } catch (e) {
+      if (kDebugMode) print('❌ Error al obtener clientes inactivos: $e');
+      rethrow;
     }
   }
 
-  // POST - Insertar cliente
+  // ➕ Insertar cliente
   Future<bool> insertCustomer(Customer customer) async {
-    final uri = Uri.parse('${baseUrl}insertarClientes');
-    final response = await http.post(
-      uri,
-      headers: _api.buildHeaders(),
-      body: jsonEncode(customer.toJson()),
-    );
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) == true;
-    } else {
-      throw Exception('Error al insertar cliente: ${response.body}');
+    try {
+      final endpoint = '$_endpointBase/insertarClientes';
+      final result = await _api.post(endpoint, customer.toJson());
+      return result == true;
+    } catch (e) {
+      if (kDebugMode) print('❌ Error al insertar cliente: $e');
+      rethrow;
     }
   }
 
-  // PUT - Activar cliente
+  // 🔓 Activar cliente
   Future<bool> activateCustomer(int id) async {
-    final uri = Uri.parse('${baseUrl}activarCliente/$id');
-    final response = await http.put(uri, headers: _api.buildHeaders());
-    return response.statusCode == 200;
+    try {
+      final uri = Uri.parse('${_api.baseUrl}/$_endpointBase/activarCliente/$id');
+      final response = await _api.putRaw(uri);
+      return response == true;
+    } catch (e) {
+      if (kDebugMode) print('❌ Error al activar cliente: $e');
+      rethrow;
+    }
   }
 
-  // PUT - Desactivar cliente
+  // 🔒 Desactivar cliente
   Future<bool> deactivateCustomer(int id) async {
-    final uri = Uri.parse('${baseUrl}desactivarCliente/$id');
-    final response = await http.put(uri, headers: _api.buildHeaders());
-    return response.statusCode == 200;
+    try {
+      final uri = Uri.parse('${_api.baseUrl}/$_endpointBase/desactivarCliente/$id');
+      final response = await _api.putRaw(uri);
+      return response == true;
+    } catch (e) {
+      if (kDebugMode) print('❌ Error al desactivar cliente: $e');
+      rethrow;
+    }
   }
 }
+

@@ -3,10 +3,11 @@ import 'package:plastihogar_flutter/theme/appcolor.dart';
 import '../controller/costumer_controller.dart';
 import '../model/costumer_model.dart';
 import 'detallecostumer_view.dart';
-import '../theme/appcolor.dart';
 
 class CustomerView extends StatefulWidget {
-  const CustomerView({Key? key}) : super(key: key);
+  final dynamic authResponse;
+
+  const CustomerView({super.key, required this.authResponse});
 
   @override
   State<CustomerView> createState() => _CustomerViewState();
@@ -14,7 +15,7 @@ class CustomerView extends StatefulWidget {
 
 class _CustomerViewState extends State<CustomerView> {
   final CustomerController _controller = CustomerController();
-  bool _verActivos = true; // Alternar entre activos/inactivos
+  bool _verActivos = true; // Alternar entre activos e inactivos
 
   late Future<List<Customer>> _futureCustomers;
 
@@ -34,21 +35,23 @@ class _CustomerViewState extends State<CustomerView> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height; // ✅ evita LateInitError
+
     return Scaffold(
-      backgroundColor: AppColors.lavender, 
+      backgroundColor: AppColors.lavender,
       appBar: AppBar(
         title: Text(
           _verActivos ? 'Clientes Activos' : 'Clientes Inactivos',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: AppColors.oxfordBlue, 
+        backgroundColor: AppColors.oxfordBlue,
         elevation: 4,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _cargarClientes,
-            tooltip: 'Actualizar',
+            tooltip: 'Actualizar lista',
           ),
         ],
       ),
@@ -64,8 +67,11 @@ class _CustomerViewState extends State<CustomerView> {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(
-                      child: Text('Error: ${snapshot.error}',
-                          style: const TextStyle(color: Colors.red)));
+                    child: Text(
+                      'Error: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('No hay clientes disponibles.'));
                 }
@@ -81,12 +87,13 @@ class _CustomerViewState extends State<CustomerView> {
               },
             ),
           ),
+          SizedBox(height: screenHeight * 0.02), // ✅ margen final proporcional
         ],
       ),
     );
   }
 
-  // Widget para cambiar entre activos/inactivos
+  /// 🔘 Botones para alternar entre clientes activos e inactivos
   Widget _buildToggleButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -97,13 +104,16 @@ class _CustomerViewState extends State<CustomerView> {
             icon: const Icon(Icons.check_circle),
             label: const Text('Activos'),
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  _verActivos ? const Color(0xFF4CAF50) : Colors.grey[400], // 🎨 Verde o gris
+              backgroundColor: _verActivos
+                  ? const Color(0xFF4CAF50)
+                  : Colors.grey[400],
             ),
             onPressed: () {
               if (!_verActivos) {
-                _verActivos = true;
-                _cargarClientes();
+                setState(() {
+                  _verActivos = true;
+                  _cargarClientes();
+                });
               }
             },
           ),
@@ -112,13 +122,16 @@ class _CustomerViewState extends State<CustomerView> {
             icon: const Icon(Icons.cancel),
             label: const Text('Inactivos'),
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  !_verActivos ? const Color(0xFFE53935) : Colors.grey[400], // 🎨 Rojo o gris
+              backgroundColor: !_verActivos
+                  ? const Color(0xFFE53935)
+                  : Colors.grey[400],
             ),
             onPressed: () {
               if (_verActivos) {
-                _verActivos = false;
-                _cargarClientes();
+                setState(() {
+                  _verActivos = false;
+                  _cargarClientes();
+                });
               }
             },
           ),
@@ -127,41 +140,40 @@ class _CustomerViewState extends State<CustomerView> {
     );
   }
 
-  // Tarjeta de cliente individual
+  /// 🧾 Tarjeta individual para cada cliente
   Widget _buildCustomerCard(Customer customer) {
     return GestureDetector(
       onTap: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => CustomerDetailView(customer: customer),
-    ),
-  );
-},
-
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CustomerDetailView(customer: customer),
+          ),
+        );
+      },
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         elevation: 3,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        color: Colors.white, // 🎨 Fondo de la tarjeta
+        color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              // Avatar o imagen de perfil
+              // 🔹 Avatar circular
               Container(
                 width: 60,
                 height: 60,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.grey[300], // 🎨 Fondo para foto (temporal)
+                  color: Color(0xFF31487A), // 🎨 tono azul intermedio de tu paleta
                 ),
                 child: const Icon(Icons.person, size: 36, color: Colors.white),
               ),
               const SizedBox(width: 16),
-              // Información principal
+              // 🔹 Información del cliente
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,7 +183,7 @@ class _CustomerViewState extends State<CustomerView> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF192338), // 🎨 Color del texto principal
+                        color: Color(0xFF192338),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -179,14 +191,14 @@ class _CustomerViewState extends State<CustomerView> {
                       'Teléfono: ${customer.telefono}',
                       style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.spaceCadet, // 🎨 Color texto secundario
+                        color: AppColors.spaceCadet,
                       ),
                     ),
                     Text(
                       'Dirección: ${customer.direccion}',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey[600], // 🎨 Color texto extra
+                        color: Colors.grey[600],
                       ),
                     ),
                   ],
