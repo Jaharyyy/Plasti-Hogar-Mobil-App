@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plastihogar_flutter/controller/login_controller.dart';
 import 'package:plastihogar_flutter/model/auth_response.dart';
-import 'package:plastihogar_flutter/view/costumer_view.dart';
 import 'principal_view.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -119,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 5),
                   const Text(
-                    'SEA BIENVENIDO OTRA VEZ',
+                    'BIENVENIDO OTRA VEZ',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,

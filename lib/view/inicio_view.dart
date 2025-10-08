@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
+import 'login.dart'; // 👈 asegúrate de importar tu vista de login
 
 class InicioScreen extends StatefulWidget {
-
   final dynamic authResponse;
 
   const InicioScreen({super.key, required this.authResponse});
@@ -51,11 +51,12 @@ class _InicioScreenState extends State<InicioScreen>
   }
 
   Future<void> _initializeApp() async {
-    // Espera unos segundos para simular carga
-    await Future.delayed(const Duration(milliseconds: 2500));
-
+    await Future.delayed(const Duration(milliseconds: 6500));
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/inventory-list-screen');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
     }
   }
 
@@ -67,47 +68,51 @@ class _InicioScreenState extends State<InicioScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Cambiar color de la barra de estado
+    // Colores del sistema
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Colors.blue,
+        statusBarColor: Color(0xFF192338),
         statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.blue,
+        systemNavigationBarColor: Color(0xFF192338),
         systemNavigationBarIconBrightness: Brightness.light,
       ),
     );
 
     return Scaffold(
-      backgroundColor:const Color(0xFF192338),
+      backgroundColor: const Color(0xFF192338),
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Spacer(flex: 2),
-            // Logo
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: _buildAppLogo(),
-                  ),
-                );
-              },
-            ),
-            SizedBox(height: 8.h),
-            // Título
-            FadeTransition(opacity: _fadeAnimation, child: _buildAppTitle()),
-            SizedBox(height: 4.h),
-            // Subtítulo
-            FadeTransition(opacity: _fadeAnimation, child: _buildAppSubtitle()),
-            const Spacer(flex: 1),
-            // Loading
-            FadeTransition(opacity: _fadeAnimation, child: _buildLoading()),
-            const Spacer(flex: 1),
-          ],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center, // 👈 centra verticalmente
+            crossAxisAlignment: CrossAxisAlignment.center, // 👈 centra horizontalmente
+            children: [
+              // Logo animado
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: _buildAppLogo(),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: 5.h),
+
+              // Título
+              FadeTransition(opacity: _fadeAnimation, child: _buildAppTitle()),
+              SizedBox(height: 2.h),
+
+              // Subtítulo
+              FadeTransition(opacity: _fadeAnimation, child: _buildAppSubtitle()),
+              SizedBox(height: 5.h),
+
+              // Cargando
+              FadeTransition(opacity: _fadeAnimation, child: _buildLoading()),
+            ],
+          ),
         ),
       ),
     );
@@ -115,14 +120,14 @@ class _InicioScreenState extends State<InicioScreen>
 
   Widget _buildAppLogo() {
     return Container(
-      width: 25.w,
-      height: 25.w,
+      width: 30.w,
+      height: 30.w,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        image: DecorationImage(
+        image: const DecorationImage(
           image: AssetImage('assets/LOGO.jpg'),
           fit: BoxFit.cover,
-          ),
+        ),
         color: Colors.white,
         boxShadow: const [
           BoxShadow(

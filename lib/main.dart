@@ -1,27 +1,33 @@
 import 'package:flutter/material.dart'; 
-import 'view/login.dart';
+import 'package:sizer/sizer.dart';
+import 'view/inicio_view.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyApp(authResponse: dynamic,));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final dynamic authResponse;
+  const MyApp ({super.key, required this.authResponse});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false, // 🔹 quita el banner rojo
-      title: 'Catálogo de Clientes',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.grey[100],
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF192338), // 🎨 color principal
-          foregroundColor: Colors.white,
+    return Sizer(
+      builder: (context, orientation, deviceType) {
+        return MaterialApp(
+            debugShowCheckedModeBanner: false, 
+          title: 'Catálogo de Clientes',
+          theme: ThemeData(
+          primarySwatch: Colors.blue,
+          scaffoldBackgroundColor: Colors.grey[100],
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFF192338), 
+            foregroundColor: Colors.white,
         ),
       ),
-      home: const LoginScreen(), // 👈 esta es la pantalla que se carga primero
+      home: const InicioScreen(authResponse: null,), 
     );
   }
+  );
+}
 }
