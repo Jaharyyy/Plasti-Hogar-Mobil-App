@@ -1,5 +1,4 @@
 import 'domain_model.dart';
-import 'domain_model.dart';
 
 class Customer extends DomainModel {
   Customer({
@@ -20,7 +19,7 @@ class Customer extends DomainModel {
     setField('Estado', estado ?? false);
   }
 
-  // === Getters seguros ===
+  // === Getters ===
   int get idCliente => getField('Id_Cliente') ?? 0;
   int get idEmpleados => getField('Id_Empleados') ?? 0;
   String get nombre => getField('Nombre') ?? '';
@@ -29,7 +28,7 @@ class Customer extends DomainModel {
   String get direccion => getField('Direccion') ?? '';
   bool get estado => getField('Estado') ?? false;
 
-  // === Serialización a JSON ===
+  // === JSON ===
   Map<String, dynamic> toJson() {
     return {
       'Id_Cliente': idCliente,
@@ -42,14 +41,16 @@ class Customer extends DomainModel {
     };
   }
 
-  // === Fábrica desde JSON del backend ===
+  // ✅ Acepta claves en mayúsculas o minúsculas
   factory Customer.fromJson(Map<String, dynamic> json) => Customer(
-        idCliente: json['Id_Cliente'] ?? 0,
-        idEmpleados: json['Id_Empleados'] ?? 0,
-        nombre: json['Nombre'] ?? '',
-        apellido: json['Apellido'] ?? '',
-        telefono: json['Telefono'] ?? '',
-        direccion: json['Direccion'] ?? '',
-        estado: json['Estado'] ?? false,
-      );
+  idCliente: json['Id_Cliente'] ?? json['id_Cliente'] ?? 0,
+  idEmpleados: json['Id_Empleados'] ?? json['id_Empleados'] ?? 0,
+  nombre: json['Nombre'] ?? json['nombre'] ?? '',
+  apellido: json['Apellido'] ?? json['apellido'] ?? '',
+  telefono: json['Telefono'] ?? json['telefono'] ?? '',
+  direccion: json['Direccion'] ?? json['direccion'] ?? '',
+  estado: json['Estado'] ?? json['estado'] ?? false,
+);
+
 }
+

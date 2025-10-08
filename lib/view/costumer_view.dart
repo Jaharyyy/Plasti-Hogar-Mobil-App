@@ -3,6 +3,8 @@ import 'package:plastihogar_flutter/theme/appcolor.dart';
 import '../controller/costumer_controller.dart';
 import '../model/costumer_model.dart';
 import 'detallecostumer_view.dart';
+import 'addcustomer_view.dart';
+import 'principal_view.dart';
 
 class CustomerView extends StatefulWidget {
   final dynamic authResponse;
@@ -44,17 +46,44 @@ class _CustomerViewState extends State<CustomerView> {
           _verActivos ? 'Clientes Activos' : 'Clientes Inactivos',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        centerTitle: true,
+            centerTitle: true,
         backgroundColor: AppColors.oxfordBlue,
         elevation: 4,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          tooltip: 'Menú principal',
+          onPressed: () {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (_) => const InicioView(authResponse: null)),
+  );
+},
+
+        ),
         actions: [
           IconButton(
+  icon: const Icon(Icons.add_circle_outline),
+  tooltip: 'Agregar nuevo cliente',
+  onPressed: () async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AddCustomerView()),
+    );
+
+    if (result == true) {
+      _cargarClientes(); // 🔄 actualiza la lista al volver
+    }
+  },
+),
+
+          IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Actualizar',
             onPressed: _cargarClientes,
-            tooltip: 'Actualizar lista',
           ),
         ],
       ),
+      
       body: Column(
         children: [
           const SizedBox(height: 8),
@@ -145,11 +174,15 @@ class _CustomerViewState extends State<CustomerView> {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CustomerDetailView(customer: customer),
-          ),
-        );
+      context,
+        MaterialPageRoute(
+    builder: (_) => CustomerDetailView(customer: customer),
+      ),
+          ).then((_) {
+  // 🟢 Esto se ejecuta al volver del detalle
+      _cargarClientes(); // 🔄 Recarga la lista desde la API
+      });
+
       },
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plastihogar_flutter/controller/login_controller.dart';
 import 'package:plastihogar_flutter/model/auth_response.dart';
 import 'package:plastihogar_flutter/view/costumer_view.dart';
-import 'inicio_view.dart';
+import 'principal_view.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (context) => CustomerView(authResponse: result),
+            builder: (context) => InicioView(authResponse: result),
           ),
           (Route<dynamic> route) => false,
         );
