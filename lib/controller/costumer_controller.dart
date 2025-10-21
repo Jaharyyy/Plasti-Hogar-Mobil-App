@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../model/costumer_model.dart';
 import '../services/api_services.dart';
+import '../model/venta_model.dart';
 
 class CustomerController {
   final ApiServices _api = ApiServices();
 
   // 🔹 Base URL (ajústala según tu backend)
   static const String _baseUrl = "http://localhost:5059/api/Customers/";
+  static const String ventasUrl = "http://localhost:5059/api/Ventas/";
 
   // ============================================
   // 🔹 OBTENER CLIENTES ACTIVOS
@@ -51,6 +53,21 @@ class CustomerController {
       }
     } catch (e) {
       throw Exception('❌ Error al obtener clientes inactivos: $e');
+    }
+  }
+// ✅ Obtener ventas por cliente
+  Future<List<Sale>> getSalesByCustomer(int idCliente) async {
+    final uri = Uri.parse('${ventasUrl}cliente/$idCliente');
+    final response = await http.get(uri, headers: _api.buildHeaders());
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList.map((e) => Sale.fromJson(e)).toList();
+    } else if (response.statusCode == 404) {
+      return []; // cliente sin ventas
+    } else {
+      throw Exception(
+          '⚠️ Error GET /api/Ventas/cliente/$idCliente: ${response.statusCode}');
     }
   }
 
