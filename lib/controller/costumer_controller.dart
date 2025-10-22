@@ -129,4 +129,29 @@ Future<bool> deactivateCustomer(int id) async {
   }
   throw Exception('PUT desactivarCliente: ${resp.statusCode} → ${resp.body}');
 }
+
+Future<bool> updateCustomer(Customer customer) async {
+  final uri = Uri.parse('${_baseUrl}actualizarCliente');
+
+  final response = await http.put(
+    uri,
+    headers: _api.buildHeaders(),
+    body: jsonEncode({
+      'Id_Cliente': customer.idCliente,
+      'Nombre': customer.nombre,
+      'Apellido': customer.apellido,
+      'Telefono': customer.telefono,
+      'Direccion': customer.direccion,
+      'Estado': customer.estado,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    return true;
+  } else {
+    print('Error al actualizar cliente: ${response.body}');
+    return false;
+  }
+}
+
 }

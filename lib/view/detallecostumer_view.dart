@@ -26,6 +26,135 @@ class _CustomerDetailViewState extends State<CustomerDetailView> {
     _ventasFuture = _controller.getSalesByCustomer(widget.customer.idCliente);
   }
 
+  //editar dtos de un cliente
+  void _mostrarModalEditarCliente(BuildContext context) {
+  final TextEditingController nombreController =
+      TextEditingController(text: widget.customer.nombre);
+  final TextEditingController apellidoController =
+      TextEditingController(text: widget.customer.apellido);
+  final TextEditingController telefonoController =
+      TextEditingController(text: widget.customer.telefono);
+  final TextEditingController direccionController =
+      TextEditingController(text: widget.customer.direccion);
+
+  bool estadoActual = widget.customer.estado;
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text(
+          'Editar Cliente',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF192338),
+          ),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildTextField(nombreController, 'Nombre'),
+              const SizedBox(height: 8),
+              _buildTextField(apellidoController, 'Apellido'),
+              const SizedBox(height: 8),
+              _buildTextField(telefonoController, 'Teléfono'),
+              const SizedBox(height: 8),
+              _buildTextField(direccionController, 'Dirección'),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Activo: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Switch(
+                    value: estadoActual,
+                    onChanged: (value) {
+                      setState(() {
+                        estadoActual = value;
+                      });
+                    },
+                    activeColor: Colors.green,
+                    inactiveThumbColor: Colors.red,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () async {
+              final actualizado = Customer(
+                idCliente: widget.customer.idCliente,
+                idEmpleados: widget.customer.idEmpleados,
+                nombre: nombreController.text,
+                apellido: apellidoController.text,
+                telefono: telefonoController.text,
+                direccion: direccionController.text,
+                estado: estadoActual,
+              );
+
+              bool result = await _controller.updateCustomer(actualizado);
+
+              if (result && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Cliente actualizado correctamente'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+                Navigator.pop(context);
+                setState(() {
+                  // Actualiza la vista con los nuevos datos
+                  widget.customer.setField('Nombre', actualizado.nombre);
+                  widget.customer.setField('Apellido', actualizado.apellido);
+                  widget.customer.setField('Telefono', actualizado.telefono);
+                  widget.customer.setField('Direccion', actualizado.direccion);
+                  widget.customer.setField('Estado', actualizado.estado);
+                });
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Error al actualizar el cliente'),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+              }
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      );
+    },
+  );
+}
+Widget _buildTextField(TextEditingController controller, String label) {
+  return TextField(
+    controller: controller,
+    decoration: InputDecoration(
+      labelText: label,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFF192338)),
+      ),
+    ),
+  );
+}
+
   // Confirmar activación o desactivación
   void _confirmarCambioEstado(bool activar) async {
     final confirm = await showDialog<bool>(
@@ -104,11 +233,30 @@ class _CustomerDetailViewState extends State<CustomerDetailView> {
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold),
                     ),
+                    
+                    
                     const SizedBox(height: 8),
                     Text('Teléfono: ${customer.telefono}'),
                     Text('Dirección: ${customer.direccion}'),
                     Text('Estado: ${customer.estado ? 'Activo' : 'Inactivo'}'),
                     const SizedBox(height: 16),
+                    
+                        //btn editar
+                          Padding(
+                          padding: const EdgeInsets.only(top: 12.0, bottom: 8.0),
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              _mostrarModalEditarCliente(context);
+                            },
+                            icon: const Icon(Icons.edit, color: Colors.white),
+                            label: const Text("Editar Cliente"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                          ),
+                        ),
+                        
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -122,6 +270,7 @@ class _CustomerDetailViewState extends State<CustomerDetailView> {
                               ? () => _confirmarCambioEstado(false)
                               : null,
                         ),
+
                         ElevatedButton.icon(
                           icon: const Icon(Icons.check_circle),
                           label: const Text('Activar'),
