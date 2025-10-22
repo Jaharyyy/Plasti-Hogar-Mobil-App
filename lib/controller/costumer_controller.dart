@@ -9,7 +9,7 @@ class CustomerController {
 
   // 🔹 Base URL (ajústala según tu backend)
   static const String _baseUrl = "http://localhost:5059/api/Customers/";
-  static const String ventasUrl = "http://localhost:5059/api/Ventas/";
+  static const String ventasUrl = "http://localhost:5059/api/Sales";
 
   // ============================================
   // 🔹 OBTENER CLIENTES ACTIVOS
@@ -56,20 +56,19 @@ class CustomerController {
     }
   }
 // ✅ Obtener ventas por cliente
-  Future<List<Sale>> getSalesByCustomer(int idCliente) async {
-    final uri = Uri.parse('${ventasUrl}cliente/$idCliente');
-    final response = await http.get(uri, headers: _api.buildHeaders());
+ Future<List<Sale>> getSalesByCustomer(int idCliente) async {
+  final url = Uri.parse('$ventasUrl/cliente/$idCliente');
 
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList.map((e) => Sale.fromJson(e)).toList();
-    } else if (response.statusCode == 404) {
-      return []; // cliente sin ventas
-    } else {
-      throw Exception(
-          '⚠️ Error GET /api/Ventas/cliente/$idCliente: ${response.statusCode}');
-    }
+  final response = await http.get(url, headers: _api.buildHeaders());
+
+  if (response.statusCode == 200) {
+    final List<dynamic> jsonList = jsonDecode(response.body);
+    return jsonList.map((e) => Sale.fromJson(e)).toList();
+  } else {
+    throw Exception('Error GET $url: ${response.statusCode}');
   }
+}
+
 
   // ============================================
   // 🔹 INSERTAR NUEVO CLIENTE
