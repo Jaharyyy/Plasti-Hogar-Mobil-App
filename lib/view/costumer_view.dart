@@ -4,7 +4,7 @@ import '../controller/costumer_controller.dart';
 import '../model/costumer_model.dart';
 import 'detallecostumer_view.dart';
 import 'addcustomer_view.dart';
-import 'principal_view.dart';
+import '../widgets/sidebar.dart';
 
 class CustomerView extends StatefulWidget {
   final dynamic authResponse;
@@ -14,6 +14,7 @@ class CustomerView extends StatefulWidget {
   @override
   State<CustomerView> createState() => _CustomerViewState();
 }
+
 
 class _CustomerViewState extends State<CustomerView> {
   final CustomerController _controller = CustomerController();
@@ -49,17 +50,7 @@ class _CustomerViewState extends State<CustomerView> {
             centerTitle: true,
         backgroundColor: AppColors.oxfordBlue,
         elevation: 4,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          tooltip: 'Menú principal',
-          onPressed: () {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (_) => const InicioView(authResponse: null)),
-  );
-},
 
-        ),
         actions: [
           IconButton(
   icon: const Icon(Icons.add_circle_outline),
@@ -84,6 +75,8 @@ class _CustomerViewState extends State<CustomerView> {
         ],
       ),
       
+      drawer: AppDrawer(authResponse: widget.authResponse),
+
       body: Column(
         children: [
           const SizedBox(height: 8),

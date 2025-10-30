@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plastihogar_flutter/view/venta_view.dart';
 import '../theme/appcolor.dart';
 import 'costumer_view.dart';
 
@@ -90,7 +91,13 @@ class InicioView extends StatelessWidget {
                 _menuItem(context,
                     icon: Icons.category, label: "Catálogo de productos", onTap: () {}),
                 _menuItem(context,
-                    icon: Icons.swap_horiz, label: "Transacciones de ventas", onTap: () {}),
+                    icon: Icons.swap_horiz, label: "Transacciones de ventas", 
+                    onTap: () {
+                       Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SaleTransactionView ())
+                       );
+                    }),
                 _menuItem(context,
                     icon: Icons.swap_vert, label: "Transacciones de compras", onTap: () {}),
               ],
