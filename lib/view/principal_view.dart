@@ -93,10 +93,9 @@ class InicioView extends StatelessWidget {
                 _menuItem(context,
                     icon: Icons.swap_horiz, label: "Transacciones de ventas", 
                     onTap: () {
-                       Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const SaleTransactionView ())
-                       );
+                      Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) =>   const SaleTransactionView ()),);
                     }),
                 _menuItem(context,
                     icon: Icons.swap_vert, label: "Transacciones de compras", onTap: () {}),

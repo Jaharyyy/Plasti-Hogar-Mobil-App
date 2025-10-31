@@ -1,40 +1,31 @@
 // lib/controller/sale_controller.dart
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import '../services/api_services.dart';
 import '../model/sale_model.dart';
+import '../services/api_services.dart';
 
-class SaleController {
+class SalesController {
   final ApiServices _api = ApiServices();
-  static const String baseUrl = 'http://localhost:5059/api/Sales';
+  static const String url = "Sales";
 
-  Future<SaleResponseDTO?> insertarVenta(CreateSaleDTO sale) async {
-    final uri = Uri.parse('$baseUrl/insertar_venta');
-
+  Future<bool> insertarVenta(Sale sale) async {
+    final uri = Uri.parse("${_api.baseUrl}/$url/insertar_venta");
     try {
       final response = await http.post(
         uri,
-        headers: {
-          ..._api.buildHeaders(),
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
+        headers: _api.buildHeaders(),
         body: jsonEncode(sale.toJson()),
       );
 
-      if (kDebugMode) {
-        print('Respuesta insertarVenta: ${response.statusCode}');
-        print(response.body);
-      }
-
       if (response.statusCode == 200) {
-        return SaleResponseDTO.fromJson(jsonDecode(response.body));
+        return true;
       } else {
-        throw Exception('Error al registrar venta: ${response.statusCode}');
+        print("❌ Error insertarVenta: ${response.body}");
+        return false;
       }
     } catch (e) {
-      if (kDebugMode) print('Error insertarVenta: $e');
-      rethrow;
+      print("⚠️ Excepción insertarVenta: $e");
+      return false;
     }
   }
 }

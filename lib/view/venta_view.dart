@@ -1,11 +1,14 @@
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../controller/sale_controller.dart';
 import '../controller/costumer_controller.dart';
+import '../controller/producto_controller.dart';
 import '../model/sale_model.dart';
+import '../model/sale_detail.dart';
 import '../model/costumer_model.dart';
+import '../model/product_model.dart';
 import '../theme/appcolor.dart';
+import '../widgets/sidebar.dart';
+import 'agregarproducto_modal.dart';
 
 class SaleTransactionView extends StatefulWidget {
   const SaleTransactionView({super.key});
@@ -15,185 +18,214 @@ class SaleTransactionView extends StatefulWidget {
 }
 
 class _SaleTransactionViewState extends State<SaleTransactionView> {
-  final SaleController _saleController = SaleController();
+  final SalesController _saleController = SalesController();
   final CustomerController _customerController = CustomerController();
+  final ProductController _productController = ProductController();
 
-  List<Customer> _clientes = [];
-  Customer? _clienteSeleccionado;
-  List<CreateSaleDetailDTO> _detalleVenta = [];
+  int? selectedCustomerId;
+  List<Customer> customers = [];
+  List<Product> products = [];
+  List<SaleDetail> detalles = [];
 
-  final TextEditingController _idProductoController = TextEditingController();
-  final TextEditingController _cantidadController = TextEditingController();
-
-  bool _cargando = false;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _cargarClientes();
+    _cargarDatos();
   }
 
-  Future<void> _cargarClientes() async {
+  Future<void> _cargarDatos() async {
+    setState(() => isLoading = true);
     try {
-      final clientes = await _customerController.getActiveCustomers();
+      final clientesActivos = await _customerController.getActiveCustomers();
+      final productosActivos = await _productController.obtenerProductosActivos();
       setState(() {
-        _clientes = clientes;
-        if (clientes.isNotEmpty) _clienteSeleccionado = clientes.first;
+        customers = clientesActivos;
+        products = productosActivos;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error cargando clientes: $e')),
-      );
-    }
-  }
-
-  void _agregarProducto() {
-    final id = int.tryParse(_idProductoController.text);
-    final cantidad = int.tryParse(_cantidadController.text);
-
-    if (id == null || cantidad == null || cantidad <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Datos del producto inválidos')),
-      );
-      return;
-    }
-
-    setState(() {
-      _detalleVenta.add(CreateSaleDetailDTO(idProductos: id, cantidad: cantidad));
-      _idProductoController.clear();
-      _cantidadController.clear();
-    });
-  }
-
-  void _eliminarProducto(int index) {
-    setState(() {
-      _detalleVenta.removeAt(index);
-    });
-  }
-
-  Future<void> _guardarVenta() async {
-    if (_clienteSeleccionado == null || _detalleVenta.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Seleccione cliente y agregue productos')),
-      );
-      return;
-    }
-
-    final venta = CreateSaleDTO(
-      idCliente: _clienteSeleccionado!.idCliente,
-      fechaVenta: DateFormat('yyyy-MM-ddTHH:mm:ss').format(DateTime.now()),
-      detalleVenta: _detalleVenta,
-    );
-
-    setState(() => _cargando = true);
-
-    try {
-      final response = await _saleController.insertarVenta(venta);
-
-      if (response != null && response.result) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.message?.join(', ') ?? 'Venta registrada'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        setState(() => _detalleVenta.clear());
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response?.message?.join(', ') ?? 'Error al registrar venta'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text('Error al cargar datos: $e')),
       );
     } finally {
-      setState(() => _cargando = false);
+      setState(() => isLoading = false);
+    }
+  }
+
+  void _abrirModalAgregarProducto() {
+  showDialog(
+    context: context,
+    builder: (context) => AgregarProductoModal(
+      onAgregar: (Product producto, int cantidad) {
+        final detalle = SaleDetail(
+          idProductos: producto.idProductos,
+          nombreProducto: producto.nombreProducto,
+          cantidad: cantidad,
+          precioUnitario: producto.precio,
+          lineaTotal: producto.precio * cantidad,
+        );
+
+        setState(() {
+          detalles.add(detalle);
+        });
+      },
+    ),
+  );
+}
+
+
+
+
+
+  Future<void> _guardarVenta() async {
+    if (selectedCustomerId == null || detalles.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Debe seleccionar un cliente y al menos un producto")),
+      );
+      return;
+    }
+
+    final nuevaVenta = Sale(
+      idCliente: selectedCustomerId!,
+      fechaVenta: DateTime.now(),
+      detalleVenta: detalles,
+    );
+
+    final exito = await _saleController.insertarVenta(nuevaVenta);
+
+    if (exito) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("✅ Venta registrada correctamente")),
+      );
+      setState(() {
+        detalles.clear();
+        selectedCustomerId = null;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Error al registrar la venta")),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Registrar Venta'),
-        backgroundColor: AppColors.oxfordBlue,
-      ),
       backgroundColor: AppColors.lavender,
-      body: _cargando
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
+      appBar: AppBar(
+        backgroundColor: AppColors.oxfordBlue,
+        title: const Text("🧾 Registrar Venta"),
+        centerTitle: true,
+      ),
+      // 🔹 Sidebar (menú lateral)
+      drawer: AppDrawer(authResponse: null),
+
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DropdownButtonFormField<Customer>(
-                    value: _clienteSeleccionado,
-                    decoration: const InputDecoration(labelText: 'Cliente'),
-                    items: _clientes
-                        .map((c) => DropdownMenuItem(
-                              value: c,
-                              child: Text('${c.nombre} ${c.apellido}'),
-                            ))
-                        .toList(),
-                    onChanged: (v) => setState(() => _clienteSeleccionado = v),
-                  ),
-                  const SizedBox(height: 16),
-
-                  TextField(
-                    controller: _idProductoController,
-                    decoration: const InputDecoration(labelText: 'ID Producto'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _cantidadController,
-                    decoration: const InputDecoration(labelText: 'Cantidad'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 12),
-                  ElevatedButton.icon(
-                    onPressed: _agregarProducto,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Agregar producto'),
-                  ),
-                  const SizedBox(height: 16),
-
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _detalleVenta.length,
-                      itemBuilder: (context, index) {
-                        final d = _detalleVenta[index];
-                        return Card(
-                          child: ListTile(
-                            title: Text('Producto ID: ${d.idProductos}'),
-                            subtitle: Text('Cantidad: ${d.cantidad}'),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => _eliminarProducto(index),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _guardarVenta,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.oxfordBlue,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                  // Cliente
+                  DropdownButtonFormField<int>(
+                    value: selectedCustomerId,
+                    decoration: InputDecoration(
+                      labelText: "Seleccionar cliente",
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text('Registrar Venta', style: TextStyle(fontSize: 16)),
                     ),
+                    items: customers.map((c) {
+                      return DropdownMenuItem<int>(
+                        value: c.idCliente,
+                        child: Text('${c.nombre} ${c.apellido}'),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => selectedCustomerId = value);
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Lista de productos agregados
+                  Expanded(
+                    child: detalles.isEmpty
+                        ? const Center(
+                            child: Text(
+                              "🛒 No hay productos agregados",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: detalles.length,
+                            itemBuilder: (context, index) {
+                              final item = detalles[index];
+                              return Card(
+                                margin: const EdgeInsets.symmetric(vertical: 6),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                elevation: 3,
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: Colors.blue[100],
+                                    child: const Icon(Icons.shopping_bag_outlined, color: Colors.blue),
+                                  ),
+                                  title: Text(
+                                    item.nombreProducto,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF192338)),
+                                  ),
+                                  subtitle: Text(
+                                    "Cantidad: ${item.cantidad} × C\$${item.precioUnitario.toStringAsFixed(2)}",
+                                  ),
+                                  trailing: Text(
+                                    "C\$${item.lineaTotal.toStringAsFixed(2)}",
+                                    style: const TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Botones inferiores
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: _abrirModalAgregarProducto,
+                        icon: const Icon(Icons.add),
+                        label: const Text("Agregar producto"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.spaceCadet,
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: _guardarVenta,
+                        icon: const Icon(Icons.save),
+                        label: const Text("Guardar venta"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green[700],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ),
+      ),
     );
   }
 }

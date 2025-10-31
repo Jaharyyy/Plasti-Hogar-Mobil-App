@@ -1,10 +1,13 @@
-// lib/model/sale_model.dart
-class CreateSaleDTO {
-  final int idCliente;
-  final String fechaVenta;
-  final List<CreateSaleDetailDTO> detalleVenta;
+import 'sale_detail.dart';
 
-  CreateSaleDTO({
+class Sale {
+  final int? idVenta;
+  final int idCliente;
+  final DateTime fechaVenta;
+  final List<SaleDetail> detalleVenta;
+
+  Sale({
+    this.idVenta,
     required this.idCliente,
     required this.fechaVenta,
     required this.detalleVenta,
@@ -13,47 +16,22 @@ class CreateSaleDTO {
   Map<String, dynamic> toJson() {
     return {
       'Id_Cliente': idCliente,
-      'Fecha_venta': fechaVenta,
+      'Fecha_Venta': fechaVenta.toIso8601String(),
       'Detalle_Venta': detalleVenta.map((e) => e.toJson()).toList(),
     };
   }
-}
 
-class CreateSaleDetailDTO {
-  final int idProductos;
-  final int cantidad;
+  factory Sale.fromJson(Map<String, dynamic> json) {
+    var detallesJson = json['Detalle_Venta'] as List? ?? [];
+    List<SaleDetail> detalles =
+        detallesJson.map((e) => SaleDetail.fromJson(e)).toList();
 
-  CreateSaleDetailDTO({
-    required this.idProductos,
-    required this.cantidad,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'Id_Productos': idProductos,
-      'Cantidad': cantidad,
-    };
-  }
-}
-
-class SaleResponseDTO {
-  final bool result;
-  final List<String>? message;
-  final int? statusCode;
-
-  SaleResponseDTO({
-    required this.result,
-    this.message,
-    this.statusCode,
-  });
-
-  factory SaleResponseDTO.fromJson(Map<String, dynamic> json) {
-    return SaleResponseDTO(
-      result: json['result'] ?? false,
-      message: (json['message'] != null)
-          ? List<String>.from(json['message'])
-          : null,
-      statusCode: json['statusCode'],
+    return Sale(
+      idVenta: json['Id_Venta'],
+      idCliente: json['Id_Cliente'] ?? 0,
+      fechaVenta: DateTime.parse(json['Fecha_Venta']),
+      detalleVenta: detalles,
     );
   }
 }
+

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/appcolor.dart';
 import '../view/costumer_view.dart';
 import '../view/principal_view.dart';
+import '../view/venta_view.dart';
 
 class AppDrawer extends StatelessWidget {
   final dynamic authResponse;
@@ -59,7 +60,13 @@ class AppDrawer extends StatelessWidget {
             // ==== 📦 CATÁLOGO ====
             _buildSectionHeader("📦 Catálogo y transacciones"),
             _menuItem(context, Icons.category, "Catálogo de productos", () {}),
-            _menuItem(context, Icons.swap_horiz, "Transacciones de ventas", () {}),
+            _menuItem(context, Icons.swap_horiz, "Transacciones de ventas", () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) =>   const SaleTransactionView ()),
+
+                );
+            }),
             _menuItem(context, Icons.swap_vert, "Transacciones de compras", () {}),
 
             const Divider(),
