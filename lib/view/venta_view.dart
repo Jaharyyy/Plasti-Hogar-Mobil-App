@@ -110,122 +110,189 @@ class _SaleTransactionViewState extends State<SaleTransactionView> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.lavender,
-      appBar: AppBar(
-        backgroundColor: AppColors.oxfordBlue,
-        title: const Text("🧾 Registrar Venta"),
-        centerTitle: true,
-      ),
-      // 🔹 Sidebar (menú lateral)
-      drawer: AppDrawer(authResponse: null),
+Widget build(BuildContext context) {
+  double totalVenta = detalles.fold(0.0, (sum, item) => sum + item.lineaTotal);
 
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Cliente
-                  DropdownButtonFormField<int>(
-                    value: selectedCustomerId,
-                    decoration: InputDecoration(
-                      labelText: "Seleccionar cliente",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+  return Scaffold(
+    backgroundColor: AppColors.lavender,
+    appBar: AppBar(
+      backgroundColor: AppColors.oxfordBlue,
+      title: const Text("🧾 Registrar Venta"),
+      centerTitle: true,
+    ),
+    drawer: AppDrawer(authResponse: null),
+
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+               
+                DropdownButtonFormField<int>(
+                  value: selectedCustomerId,
+                  decoration: InputDecoration(
+                    labelText: "Seleccionar cliente",
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    items: customers.map((c) {
-                      return DropdownMenuItem<int>(
-                        value: c.idCliente,
-                        child: Text('${c.nombre} ${c.apellido}'),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() => selectedCustomerId = value);
-                    },
                   ),
+                  items: customers.map((c) {
+                    return DropdownMenuItem<int>(
+                      value: c.idCliente,
+                      child: Text('${c.nombre} ${c.apellido}'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() => selectedCustomerId = value);
+                  },
+                ),
 
-                  const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-                  // Lista de productos agregados
-                  Expanded(
-                    child: detalles.isEmpty
-                        ? const Center(
-                            child: Text(
-                              "🛒 No hay productos agregados",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          )
-                        : ListView.builder(
-                            itemCount: detalles.length,
-                            itemBuilder: (context, index) {
-                              final item = detalles[index];
-                              return Card(
-                                margin: const EdgeInsets.symmetric(vertical: 6),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                elevation: 3,
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor: Colors.blue[100],
-                                    child: const Icon(Icons.shopping_bag_outlined, color: Colors.blue),
-                                  ),
-                                  title: Text(
-                                    item.nombreProducto,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF192338)),
-                                  ),
-                                  subtitle: Text(
-                                    "Cantidad: ${item.cantidad} × C\$${item.precioUnitario.toStringAsFixed(2)}",
-                                  ),
-                                  trailing: Text(
-                                    "C\$${item.lineaTotal.toStringAsFixed(2)}",
-                                    style: const TextStyle(
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
+                
+                Expanded(
+                  child: detalles.isEmpty
+                      ? const Center(
+                          child: Text(
+                            "🛒 No hay productos agregados",
+                            style: TextStyle(color: Colors.grey),
                           ),
+                        )
+                      : ListView.builder(
+                          itemCount: detalles.length,
+                          itemBuilder: (context, index) {
+                            final item = detalles[index];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 6),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              elevation: 3,
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.blue[100],
+                                  child: const Icon(Icons.shopping_bag_outlined,
+                                      color: Colors.blue),
+                                ),
+                                title: Text(
+                                  item.nombreProducto,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(255, 228, 226, 226)                
+                                    ),
+                                ),
+                                subtitle: Text(
+                                  "Cantidad: ${item.cantidad} × C\$${item.precioUnitario.toStringAsFixed(2)}",
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "C\$${item.lineaTotal.toStringAsFixed(2)}",
+                                      style: const TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete_outline,
+                                          color: Colors.redAccent),
+                                      tooltip: "Eliminar producto",
+                                      onPressed: () {
+                                        setState(() {
+                                          detalles.removeAt(index);
+                                        });
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              "🗑️ ${item.nombreProducto} eliminado",
+                                            ),
+                                            duration:
+                                                const Duration(seconds: 2),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-
-                  const SizedBox(height: 16),
-
-                  // Botones inferiores
-                  Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ElevatedButton.icon(
-                        onPressed: _abrirModalAgregarProducto,
-                        icon: const Icon(Icons.add),
-                        label: const Text("Agregar producto"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.spaceCadet,
+                      const Text(
+                        "Total:",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: _guardarVenta,
-                        icon: const Icon(Icons.save),
-                        label: const Text("Guardar venta"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green[700],
+                      Text(
+                        "C\$${totalVenta.toStringAsFixed(2)}",
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-      ),
-    );
-  }
+                ),
+
+                const SizedBox(height: 16),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _abrirModalAgregarProducto,
+                      icon: const Icon(Icons.add),
+                      label: const Text("Agregar producto"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.spaceCadet,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: _guardarVenta,
+                      icon: const Icon(Icons.save),
+                      label: const Text("Guardar venta"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[700],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+    ),
+  );
+}
 }

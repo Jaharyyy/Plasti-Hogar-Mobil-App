@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plastihogar_flutter/view/venta_view.dart';
 import '../theme/appcolor.dart';
 import 'costumer_view.dart';
+import 'ventas_chart.dart';
 
 class InicioView extends StatelessWidget {
   final dynamic authResponse;
@@ -80,6 +81,12 @@ class InicioView extends StatelessWidget {
                     icon: Icons.point_of_sale, label: "Historial de compras", onTap: () {}),
                 _menuItem(context,
                     icon: Icons.inventory_2, label: "Inventario", onTap: () {}),
+                _menuItem(context,
+                    icon: Icons.inventory_2, label: "Chart", onTap: () {
+                       Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) =>   const VentasChartView ()),);
+                    }),
               ],
             ),
 

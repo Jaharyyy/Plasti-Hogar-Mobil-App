@@ -51,7 +51,9 @@ class AppDrawer extends StatelessWidget {
 
             // ==== 💼 GESTIÓN ====
             _buildSectionHeader("💼 Gestión de operaciones"),
-            _menuItem(context, Icons.shopping_cart, "Historial de ventas", () {}),
+            _menuItem(context, Icons.shopping_cart, "Historial de ventas", () {
+              
+            }),
             _menuItem(context, Icons.point_of_sale, "Historial de compras", () {}),
             _menuItem(context, Icons.inventory_2, "Inventario", () {}),
 
