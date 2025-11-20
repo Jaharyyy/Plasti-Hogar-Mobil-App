@@ -27,6 +27,8 @@ class Customer extends DomainModel {
   String get telefono => getField('Telefono') ?? '';
   String get direccion => getField('Direccion') ?? '';
   bool get estado => getField('Estado') ?? false;
+  
+  String get nombreCompleto => '$nombre $apellido';
 
   // === JSON ===
   Map<String, dynamic> toJson() {

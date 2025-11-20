@@ -7,13 +7,9 @@ import '../model/venta_model.dart';
 class CustomerController {
   final ApiServices _api = ApiServices();
 
-  // 🔹 Base URL (ajústala según tu backend)
   static const String _baseUrl = "http://localhost:5059/api/Customers/";
   static const String ventasUrl = "http://localhost:5059/api/Sales";
 
-  // ============================================
-  // 🔹 OBTENER CLIENTES ACTIVOS
-  // ============================================
   Future<List<Customer>> getActiveCustomers() async {
     final uri = Uri.parse('${_baseUrl}obtenerClientesActivos');
     try {

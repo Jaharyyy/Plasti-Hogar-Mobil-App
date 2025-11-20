@@ -13,6 +13,10 @@ class Sale {
     required this.detalleVenta,
   });
 
+  double get total {
+    return detalleVenta.fold(0.0, (sum, detail) => sum + detail.lineaTotal);
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'Id_Cliente': idCliente,
@@ -34,4 +38,3 @@ class Sale {
     );
   }
 }
-

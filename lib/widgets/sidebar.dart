@@ -3,6 +3,8 @@ import '../theme/appcolor.dart';
 import '../view/costumer_view.dart';
 import '../view/principal_view.dart';
 import '../view/venta_view.dart';
+import '../view/historial_ventas.dart';
+import '../view/ventas_chart.dart';
 
 class AppDrawer extends StatelessWidget {
   final dynamic authResponse;
@@ -52,10 +54,21 @@ class AppDrawer extends StatelessWidget {
             // ==== 💼 GESTIÓN ====
             _buildSectionHeader("💼 Gestión de operaciones"),
             _menuItem(context, Icons.shopping_cart, "Historial de ventas", () {
-              
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) =>   const SalesHistoryView ()),
+
+              );
             }),
             _menuItem(context, Icons.point_of_sale, "Historial de compras", () {}),
             _menuItem(context, Icons.inventory_2, "Inventario", () {}),
+            _menuItem(context, Icons.inventory, "Diagrama",(){
+              
+                       Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) =>   const VentasChartView ()),);
+                    
+            }),
 
             const Divider(),
 

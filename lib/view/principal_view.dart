@@ -3,6 +3,7 @@ import 'package:plastihogar_flutter/view/venta_view.dart';
 import '../theme/appcolor.dart';
 import 'costumer_view.dart';
 import 'ventas_chart.dart';
+import 'historial_ventas.dart';
 
 class InicioView extends StatelessWidget {
   final dynamic authResponse;
@@ -24,7 +25,7 @@ class InicioView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.person_outline, color: Colors.white),
             onPressed: () {
-              // 🚧 En el futuro: ir al perfil del usuario
+              
             },
           ),
         ],
@@ -53,7 +54,7 @@ class InicioView extends StatelessWidget {
                   context,
                   icon: Icons.store_mall_directory,
                   label: "Proveedores",
-                  onTap: () {}, // 🚧 futuro
+                  onTap: () {}, 
                 ),
                 _menuItem(
                   context,
@@ -76,7 +77,13 @@ class InicioView extends StatelessWidget {
               title: "💼 Gestión de operaciones",
               items: [
                 _menuItem(context,
-                    icon: Icons.shopping_cart, label: "Historial de ventas", onTap: () {}),
+                    icon: Icons.shopping_cart, label: "Historial de ventas", onTap: () {
+                      Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) =>   const SalesHistoryView ()),
+
+              );
+                    }),
                 _menuItem(context,
                     icon: Icons.point_of_sale, label: "Historial de compras", onTap: () {}),
                 _menuItem(context,

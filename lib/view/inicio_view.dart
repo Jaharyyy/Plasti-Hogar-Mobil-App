@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
-import 'login.dart'; // 👈 asegúrate de importar tu vista de login
+import 'login.dart';
 
 class InicioScreen extends StatefulWidget {
   final dynamic authResponse;
